@@ -598,8 +598,117 @@ Example: Doubling a velocity vector makes you move twice as fast in the same dir
 
 # LINEAR INDEPENDENCE
 
+# vectors = elements of vector space
 
+# first we will look into linear combination 
 
+# linear combination notes
+
+# a **linear combination** is when we scale and add vectors to create new vectors.
+
+# given vectors x1, x2, ..., xk in a vector space V:
+# any vector v that can be written as:
+# v = λ1 * x1 + λ2 * x2 + ... + λk * xk
+# (where λ1, λ2, ..., λk are scalars) is a linear combination.
+
+# key properties:
+# - the **zero vector** is always a linear combination:
+#   0 = 0 * x1 + 0 * x2 + ... + 0 * xk
+# - we focus on **non-trivial** linear combinations,
+#   meaning at least one λi is **not zero** when representing 0.
+
+# example:
+# in R^2, vectors (1, 0) and (0, 1) can form any vector (a, b) by:
+# (a, b) = a * (1, 0) + b * (0, 1)
+
+# linear independence
+
+# trivial linear combination : when all scalars are 0
+
+# Linear Dependence & Independence
+
+# Linear Combination:
+# Any vector can be made by scaling & adding other vectors.
+
+# Linearly Dependent:
+# - At least one vector in the set can be made from the others.
+# - Some information is redundant.
+# - Example: (1,0), (0,1), and (2,2) → (2,2) is just 2*(1,1).
+
+# Linearly Independent:
+# - No vector in the set can be created using the others.
+# - All vectors add something unique.
+# - Example: (1,0) and (0,1) in 2D → Can't form one using the other.
+
+# Shortcut: If removing a vector doesn’t change the "span," it was dependent.
+
+# Properties of Linear Dependence & Independence
+
+# 1. Vectors are either dependent or independent—no middle ground.
+# 2. If at least one vector is zero or two vectors are identical → they are dependent.
+# 3. If one vector is a multiple of another → they are dependent.
+# 4. A set of k ≥ 2 vectors is dependent if at least one can be written as a combination of the others.
+
+# Checking Independence: Gaussian Elimination
+# - Write vectors as columns of a matrix A.
+# - Perform Gaussian elimination to get row echelon form.
+# - Pivot columns = independent vectors.
+# - Non-pivot columns = dependent vectors (can be written as a combination of pivot columns).
+
+# Shortcut:
+# - If every column is a pivot column → vectors are independent.
+# - If at least one column is not a pivot column → vectors are dependent.
+
+# to remind  a pivot column is a column in a matrix that has the first nonzero entry (a leading 1 after row reduction) in a new row, indicating an independent vector.
+
+# linear combinations
+
+b1 = np.array([1,0])
+b2 = np.array([0,1])
+
+# scalars  
+λ1, λ2 = 2, -3  
+
+# linear combination: λ1 * b1 + λ2 * b2  
+v = λ1 * b1 + λ2 * b2  
+print(v)  # Output: [ 2 -3 ]
+
+# 2. Checking Linear Independence
+# Vectors are linearly independent if the only solution to Ax = 0 is x = 0.
+# We check this using NumPy’s np.linalg.matrix_rank().
+A = np.array([[1,2],[3,6]]) # two vectors as columns
+
+rank = np.linalg.matrix_rank(A)
+
+if rank == A.shape[1]: # number of columns
+    print("linearly independent")
+else:
+    print("linearly dependent")
+
+# rank of matrix is the number of linearly independent columns in the matrix
+
+# Finding a Pivot Column
+
+from sympy import Matrix  
+
+A = Matrix([[1, 2, 3], [0, 1, 4], [0, 0, 0]])  # Third column is not a pivot
+rref, pivot_columns = A.rref()
+print("Pivot Columns:", pivot_columns)  # Output: (0, 1)
+
+# 4. Checking if a Vector is in a Subspace
+# To see if a vector 𝑣
+# v belongs to a subspace spanned by some basis vectors, solve Ax = v.
+
+A = np.array([[1, 2], [3, 4]])  # Basis vectors as columns
+v = np.array([5, 11])  # Target vector
+
+try:
+    x = np.linalg.solve(A, v)  # Solve Ax = v
+    print("v is in the subspace, solution:", x)
+except np.linalg.LinAlgError:
+    print("v is NOT in the subspace")  # If A is singular, no solution
+
+# It checks if `v` is a linear combination of `A`'s columns by solving `Ax = v`; if successful, `v` is in the subspace.
 
 
 
