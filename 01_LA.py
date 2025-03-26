@@ -1086,11 +1086,182 @@ if np.linalg.det(A_Phi) != 0:  # Ensure the matrix is invertible
     x_recovered = A_Phi_inv @ y_C
     print("Recovered x in basis B:", x_recovered)
 
+# --------------------------
+# BASIS CHANGE
+
+# --------------------------------------------
+# Basis Change & Transformation Matrices
+# --------------------------------------------
+
+# 1. Consider a linear mapping Φ: V → W.
+#    The transformation matrix A_Phi represents this mapping in some bases B (for V) and C (for W).
+
+A_Phi = np.array([[2, 1],  # Transformation matrix in basis (B, C)
+                  [0, 3]])  # Maps V -> W
+
+# 2. Suppose we change the basis in V from B to B̃.
+#    Similarly, we change the basis in W from C to C̃.
+#    The matrices P_B and P_C represent these basis changes.
+
+P_B = np.array([[1, 2],  # Change of basis matrix for V (B → B̃)
+                [3, 4]])
+
+P_C = np.array([[0, 1],  # Change of basis matrix for W (C → C̃)
+                [1, 0]])
+
+# 3. To correctly represent the same transformation in the new bases,
+#    we need to compute the updated transformation matrix A_Phi_tilde.
+#    The formula for this is:
+#
+#       Ã_Phi = P_C⁻¹ * A_Phi * P_B
+#
+#    where:
+#       - P_B changes coordinates from B̃ to B
+#       - P_C changes coordinates from C̃ to C
+#       - P_C⁻¹ reverts the change in W
+
+P_C_inv = np.linalg.inv(P_C)  # Compute inverse of P_C
+
+A_Phi_tilde = P_C_inv @ A_Phi @ P_B  # Apply basis change formula
+
+# 4. The result is the transformation matrix Ã_Phi,
+#    which represents the same mapping Φ in the new bases (B̃, C̃).
+
+print("Original transformation matrix A_Phi (in basis B, C):\n", A_Phi)
+print("\nNew transformation matrix Ã_Phi (in basis B̃, C̃):\n", A_Phi_tilde)
+
+# in simple terms : It’s about how linear transformations change when you switch to a different coordinate system (basis) in vector spaces.
+
+# Think of a basis like a coordinate system or measurement standard.
+# Example: In a city, you can describe locations using:
+# - A street grid: "2 blocks north, 3 blocks east"
+# - Landmarks: "Halfway between the library and the mall"
+# Both describe the same point but in different coordinate systems (bases).
+
+# Now, consider a transformation (like a bus route moving people):
+# - In the street grid: "Move 3 blocks east, then 2 blocks south"
+# - In the landmark system: "Move away from the mall towards the stadium"
+# The movement stays the same, but its description changes.
+
+# In linear algebra, when we change the basis, the transformation matrix 
+# (which represents the movement) also changes. The transformation itself 
+# remains the same, but its matrix form depends on the chosen basis.
+
+"""
+%%%%%%%%######%%%%%@
+##%%%#**+==+==*%%%%%
+##%@##**++=++++#%%%%
+##%%####++++#++*%%%%
+++*##*++++++===+#%%%
++==+*##***+++++#%%%%
+*****####**+++*+*%%%
+****#####******===+#
+++***#########++++++
+++****#######***++++
+++****########******
+"""
+
+# (Basis Change)
+# When we change the basis in vector spaces V and W, the transformation matrix A_Φ 
+# also changes accordingly. The new transformation matrix ˜A_Φ is computed as:
+# 
+# ˜A_Φ = T⁻¹ * A_Φ * S
+#
+# - S is the transformation matrix that converts coordinates from the new basis ˜B to the old basis B in V.
+# - T is the transformation matrix that converts coordinates from the new basis ˜C to the old basis C in W.
+# - The new transformation matrix ˜A_Φ adjusts A_Φ so that it works correctly with the new bases.
+# 
+# Intuition:
+# Imagine changing the way we describe points in space (e.g., switching from 
+# Cartesian to rotated axes). The transformation rules must also adjust accordingly 
+# to maintain the same mapping but in the new coordinate system.
 
 
+# Original transformation matrix A_Φ in the standard basis
+A_phi = np.array([[2, 1], 
+                  [1, 2]])
 
+# Change of basis matrices  
+# S transforms new basis coordinates to old basis coordinates in V
+S = np.array([[1, 1], 
+              [1, -1]])  # Columns represent new basis vectors in terms of old basis
 
+# T transforms new basis coordinates to old basis coordinates in W
+T = np.array([[1, 0], 
+              [0, 1]])  # Identity, meaning same basis in W for simplicity
 
+# Compute the new transformation matrix in the new basis
+S_inv = np.linalg.inv(S)   # Compute inverse of S
+T_inv = np.linalg.inv(T)   # Compute inverse of T (which is just identity here)
+
+A_phi_new = T_inv @ A_phi @ S  # Apply basis change formula: ˜A_Φ = T⁻¹ * A_Φ * S
+
+print("Original transformation matrix A_Φ:")
+print(A_phi)
+
+print("\nNew transformation matrix ˜A_Φ after basis change:")
+print(A_phi_new)
+
+"""
+%%%%%%%%######%%%%%@
+##%%%#**+==+==*%%%%%
+##%@##**++=++++#%%%%
+##%%####++++#++*%%%%
+++*##*++++++===+#%%%
++==+*##***+++++#%%%%
+*****####**+++*+*%%%
+****#####******===+#
+++***#########++++++
+++****#######***++++
+++****########******
+"""
+
+#  (Equivalence)
+# Two matrices A and ˜A (both m x n) are equivalent if there exist
+# two invertible matrices S (n x n) and T (m x m) such that:
+# ˜A = T⁻¹ A S
+# This means A and ˜A represent the same linear transformation under different bases.
+
+#  (Similarity)
+# Two square matrices A and ˜A (both n x n) are similar if there exists
+# an invertible matrix S (n x n) such that:
+# ˜A = S⁻¹ A S
+# This means A and ˜A describe the same transformation but in different coordinate systems.
+
+# Remark:
+# - Similar matrices are always equivalent.
+# - Equivalent matrices are not necessarily similar.
+
+# Basis change as function composition:
+# - AΦ represents a transformation from V to W using basis B and C.
+# - ˜AΦ represents the same transformation but using new bases ˜B and ˜C.
+# - S changes how vectors in V are represented (old basis B → new basis ˜B).
+# - T changes how vectors in W are represented (old basis C → new basis ˜C).
+
+# The new transformation is found by:
+# ˜AΦ = T⁻¹ AΦ S
+# This is like stacking functions:
+# (change W basis) ∘ (original transformation) ∘ (change V basis)
+
+"""
+%%%%%%%%######%%%%%@
+##%%%#**+==+==*%%%%%
+##%@##**++=++++#%%%%
+##%%####++++#++*%%%%
+++*##*++++++===+#%%%
++==+*##***+++++#%%%%
+*****####**+++*+*%%%
+****#####******===+#
+++***#########++++++
+++****#######***++++
+++****########******
+"""
+
+# ---------------------------
+# Image and Kernel
+# --------------------------
+
+# day 1 done here , will continue from tommorrow hopefully 
 
 
 
