@@ -710,6 +710,382 @@ except np.linalg.LinAlgError:
 
 # It checks if `v` is a linear combination of `A`'s columns by solving `Ax = v`; if successful, `v` is in the subspace.
 
+"""
+%%%%%%%%######%%%%%@
+##%%%#**+==+==*%%%%%
+##%@##**++=++++#%%%%
+##%%####++++#++*%%%%
+++*##*++++++===+#%%%
++==+*##***+++++#%%%%
+*****####**+++*+*%%%
+****#####******===+#
+++***#########++++++
+++****#######***++++
+++****########******
+"""
+
+# BASIS and RANK
+
+## generating set and span
+"""
+1. A generating set is a set of vectors {x1,x2....,xk} that can be used to form any vector in a vector space V using linear combinations
+2. The span of {x1,x2,.....,xk} is the set of all possible linear combinations of the vectors
+3. If the span of {x1,x2,...,x3} covers all of V we write :
+                    V = span[x1,x2,...,xk]
+4. In short a generating set defined a space and its span is the set of vectors that space can create.
+"""
+
+# basis
+
+"""
+A basis of a vector space V is a minimal generating set meaning:
+    1. It spans V ( can form every vector in V using linear combinations )
+    2. It is linearly independent ( no vector in the basis can be formed using the others )
+
+No smaller set that the basis can still span V
+"""
+
+# Basis example in R²
+# A basis is a set of linearly independent vectors that can represent any vector in the space.
+# Let's define two basis vectors in R²:
+b1 = np.array([2, 1])
+b2 = np.array([-1, 1])
+
+# Any vector in R² should be expressible as a linear combination of b1 and b2.
+# Let's check if v = [3, 2] can be represented using b1 and b2.
+A = np.column_stack((b1, b2))  # Form matrix with basis vectors as columns
+v = np.array([3, 2])  # Target vector
+
+# Solve Ax = v (i.e., find coefficients for the linear combination)
+x = np.linalg.solve(A, v)
+
+print("Coefficients for linear combination:", x)
+# This means v = x[0] * b1 + x[1] * b2
+
+# If A is invertible and the system has a unique solution, b1 and b2 form a basis.
+# Solving Ax = v helps find the weights (coefficients) needed to express v using the basis.
+
+# A basis is a minimal generating set and a maximal linearly independent set.
+
+# 1. Minimal generating set:
+#    - No smaller subset of B can still generate the entire space V.
+
+# 2. Maximal linearly independent set:
+#    - If we add any other vector to B, the set becomes linearly dependent.
+
+# 3. Unique representation:
+#    - Every vector x in V can be written uniquely as a linear combination of basis vectors.
+#    - If two different sets of coefficients give the same vector, then those coefficients must be equal.
+
+# This means that for a given basis B = {b1, b2, ..., bk}, 
+# any vector x in V can be written uniquely as:
+#    x = λ1 * b1 + λ2 * b2 + ... + λk * bk
+
+# determining a basis using row echelon form
+# ------------------------------------------
+# 1. arrange vectors as columns of a matrix
+# 2. perform row echelon reduction
+# 3. identify pivot columns (columns with leading 1s in reduced form)
+# 4. the pivot columns form a basis (they are linearly independent)
+
+# example: vectors in R^3
+A = np.array([[1, 2, 3], 
+              [4, 5, 6], 
+              [7, 8, 9]])  # matrix with 3 column vectors
+
+# convert to sympy Matrix for row reduction
+M = Matrix(A)
+ref = M.rref()  # get row echelon form
+
+print("Row Echelon Form:")
+print(ref[0])  # reduced matrix
+
+print("Pivot columns (basis indices):", ref[1])  # pivot column indices
+
+# extract basis vectors from original matrix
+basis_vectors = A[:, list(ref[1])]
+print("Basis vectors:")
+print(basis_vectors)
+
+## rank of a matrix
+
+# the number of linearly independent columns of a matrix equals the number of linearly independent rows and is called the rank of the given matrix
+
+# some important properties of matrix
+# ------------------------------
+# MATRIX SPACES & RANK CONCEPTS
+# ------------------------------
+
+# The column space (span of columns) of A defines a subspace U in R^m
+# The rank of A (rk(A)) gives the dimension of this subspace
+# A basis for this subspace can be found by identifying pivot columns after row reduction
+
+# The row space (span of rows) of A defines a subspace W in R^n
+# The rank of A is also the dimension of this row space
+# A basis for the row space can be found by applying row reduction to A^T (transpose of A)
+
+# A square matrix A (n × n) is invertible (regular) if and only if rank(A) = n
+# This means all columns are independent, and Ax = b always has a unique solution
+
+# A system Ax = b has a solution if and only if rank(A) = rank([A|b])
+# where [A|b] is the augmented matrix (A with b as an extra column)
+
+# The null space (kernel) of A consists of all solutions to Ax = 0
+# Its dimension is given by (n - rank(A)), meaning how many free variables exist in Ax = 0
+
+# A matrix is full rank if its rank is the highest possible: rank(A) = min(m, n)
+# If not full rank, it's rank deficient, meaning it has dependent columns or rows
+
+# -----------------------
+# NULL SPACE (KERNEL)
+# -----------------------
+# The null space of a matrix A consists of all vectors x such that Ax = 0.
+# These are the vectors that A "annihilates" (maps to zero).
+# It's useful for solving homogeneous systems and finding dependencies.
+
+# -----------------------
+# SINGULAR VALUE DECOMPOSITION (SVD)
+# -----------------------
+# SVD decomposes A into three matrices: U, Σ, and V^T.
+# A = U Σ V^T
+# - U: left singular vectors (columns span the column space)
+# - Σ: diagonal matrix of singular values (rank information)
+# - V^T: right singular vectors (rows span the row space and null space)
+# The last columns of V^T span the null space.
+
+# -----------------------
+# QR DECOMPOSITION
+# -----------------------
+# QR decomposition factors a matrix A into:
+# A = Q R
+# - Q: an orthogonal matrix (basis for column space)  [An orthogonal matrix is a square matrix whose inverse is equal to its transpose, meaning multiplying the matrix by its transpose results in the identity matrix]
+# - R: an upper triangular matrix (used for Gaussian elimination)
+# The pivot columns (where R has nonzero diagonal entries) form a basis
+# for the column space.
+import scipy.linalg as la
+
+# Define a matrix A
+A = np.array([[1, 2, 3], 
+              [4, 5, 6], 
+              [7, 8, 9]])
+
+# Compute the rank of A
+rank_A = np.linalg.matrix_rank(A)
+print("Rank of A:", rank_A)  # Should be 2 (since rows/columns are dependent)
+
+# -----------------------
+# FINDING NULL SPACE
+# -----------------------
+# SVD decomposition gives us fundamental spaces of A
+U, S, Vt = la.svd(A)
+
+# The last (n - rank) columns of Vt form the null space basis
+null_space_basis = Vt[rank_A:].T  # Transpose to get column vectors
+print("Null space basis:\n", null_space_basis)
+
+# -----------------------
+# FINDING COLUMN SPACE (BASIS)
+# -----------------------
+# QR decomposition gives pivot columns, which form a basis for the column space
+Q, R = np.linalg.qr(A)  # Q is orthonormal, R is upper triangular
+pivot_columns = np.where(np.abs(R.diagonal()) > 1e-10)[0]  # Find pivot columns
+print("Pivot columns (basis for column space):", pivot_columns)
+
+# -----------------------
+# FINDING ROW SPACE (BASIS)
+# -----------------------
+# Row space is the span of the independent rows in A
+# This is equivalent to finding the column space of A^T
+rank_AT = np.linalg.matrix_rank(A.T)
+print("Rank of A^T (same as rank(A)):", rank_AT)
+
+# The row space basis can be extracted from the R matrix in QR decomposition
+print("Row space basis:\n", R[:rank_A])  # First rank_A rows of R
+
+"""
+%%%%%%%%######%%%%%@
+##%%%#**+==+==*%%%%%
+##%@##**++=++++#%%%%
+##%%####++++#++*%%%%
+++*##*++++++===+#%%%
++==+*##***+++++#%%%%
+*****####**+++*+*%%%
+****#####******===+#
+++***#########++++++
+++****#######***++++
+++****########******
+"""
+
+# LINEAR MAPPINGS
+
+# --- LINEAR MAPPINGS: PRESERVING VECTOR SPACE STRUCTURE ---
+# A linear mapping (or transformation) is a function that maps vectors from one space (V) 
+# to another (W) while preserving the fundamental vector space operations:
+#   1. Addition: Φ(x + y) = Φ(x) + Φ(y)   (Preserves vector addition)
+#   2. Scalar Multiplication: Φ(λx) = λΦ(x)   (Preserves scaling)
+# 
+# This means that a linear transformation does NOT distort the basic structure of vectors.
+# It only "reshapes" or "repositions" them while keeping their relationships intact.
+# 
+# Example: Rotations, scaling, reflections, and projections are all linear mappings.
+
+A = np.array([[2,0],
+              [0,1]]) # a 2x2 transformation matrix
+
+# defining some vectors in 2D space
+
+v1 = np.array([1,2])
+v2 = np.array([3,4])
+
+# --- check addition property ----
+
+lhs = A @ (v1 + v2) # applying transformation to a sum
+rhs = A@v1 + A@v2 # transforming individually and adding
+
+print("checking addition property : ",np.allclose(lhs,rhs)) # should be true 
+# what np.allclose basically does is it checks if the two arrays are equal within some tolerance aka it checks if the two arrays are almost equal
+
+# chcek scalar multiplication property
+scalar = 5
+lhs = A @ (scalar * v1)
+rhs = scalar * (A@v1)
+
+print("Scalar multiplication property status : ", np.allclose(lhs,rhs)) # should be true
+
+
+# A mapping (or function) Φ: V → W describes how each element of V (domain) maps to W (codomain).
+# The properties of this mapping define its structure.
+
+# Injective (One-to-One) Mapping:
+# - Each input (x) maps to a unique output (Φ(x)).
+# - No two different inputs produce the same output.
+# - Mathematically: Φ(x) = Φ(y)  →  x = y (i.e., if outputs are equal, inputs must have been equal).
+
+# Surjective (Onto) Mapping:
+# - Every element of W (codomain) is covered by Φ.
+# - There are no "unreachable" elements in W.
+# - Mathematically: ∀ w ∈ W, ∃ x ∈ V such that Φ(x) = w (every element in W is mapped to by some x).
+
+# Bijective Mapping:
+# - A function that is both injective and surjective.
+# - This means:
+#   1. Each output in W is uniquely mapped from V.
+#   2. Every element of W is reached.
+# - Bijective functions have an inverse Φ⁻¹ such that applying it brings us back to the original input.
+
+# Special Types of Linear Mappings in Vector Spaces:
+# - Isomorphism: A linear and bijective map between two vector spaces (preserves structure).
+# - Endomorphism: A linear map from V to itself (Φ: V → V).
+# - Automorphism: A bijective linear map from V to itself (invertible endomorphism).
+# - Identity Mapping: The function idV(x) = x, which leaves every element unchanged.
+
+
+# Example transformation matrix
+A = np.array([[1, 2], 
+              [3, 4]])
+
+# Injectivity Check: If A is full column rank (i.e., rank(A) = number of columns), it's injective
+is_injective = np.linalg.matrix_rank(A) == A.shape[1]
+print("Injective:", is_injective)  # True if no two inputs map to the same output
+
+# Surjectivity Check: If A is full row rank (i.e., rank(A) = number of rows), it's surjective
+is_surjective = np.linalg.matrix_rank(A) == A.shape[0]
+print("Surjective:", is_surjective)  # True if every element in W can be reached
+
+# Bijectivity Check: A must be square (n×n) and full rank
+is_bijective = A.shape[0] == A.shape[1] and np.linalg.matrix_rank(A) == A.shape[0]
+print("Bijective:", is_bijective)  # True if invertible (both injective & surjective)
+
+# If bijective, find inverse
+if is_bijective:
+    A_inv = np.linalg.inv(A)
+    print("Inverse of A:\n", A_inv)  # Exists only if A is bijective
+
+# We check injectivity using rank because a transformation is injective if its columns are linearly independent (i.e., rank = number of columns), and we check surjectivity because a transformation is surjective if its rows span the entire codomain (i.e., rank = number of rows).
+
+# If a transformation is bijective, it has an inverse that can "undo" the mapping.
+
+# Theorem: Two finite-dimensional vector spaces V and W are isomorphic 
+# (structurally identical) if and only if they have the same dimension.
+# 
+# Intuition:
+# - If dim(V) = dim(W), there exists a bijective linear map between them.
+# - This means they can be transformed into each other without loss of information.
+# - Example: The space of m × n matrices (R^(m×n)) and the space of vectors of length mn (R^(mn)) 
+#   are essentially the same since both have dimension mn.
+#
+# Important consequences:
+# 1. Function composition preserves linearity:
+#    If Φ : V → W and Ψ : W → X are linear, then Ψ ◦ Φ : V → X is also linear.
+# 2. Isomorphisms are invertible:
+#    If Φ : V → W is an isomorphism, its inverse Φ⁻¹ : W → V is also an isomorphism.
+
+
+# Example: Transforming a matrix space R^(m×n) to vector space R^(mn)
+A = np.array([[1, 2], [3, 4], [5, 6]])  # 3×2 matrix in R^(3x2)
+vectorized_A = A.flatten()  # Convert it to a 6D vector in R^6
+reshaped_A = vectorized_A.reshape(3, 2)  # Convert back to original matrix
+
+print("Original matrix:\n", A)
+print("Vectorized form (in R^6):", vectorized_A)
+print("Reshaped back to matrix:\n", reshaped_A)
+
+"""
+%%%%%%%%######%%%%%@
+##%%%#**+==+==*%%%%%
+##%@##**++=++++#%%%%
+##%%####++++#++*%%%%
+++*##*++++++===+#%%%
++==+*##***+++++#%%%%
+*****####**+++*+*%%%
+****#####******===+#
+++***#########++++++
+++****#######***++++
+++****########******
+"""
+
+# Matrix Representation of Linear Mappings
+
+import numpy as np
+
+# Define a new basis (b1, b2) as column vectors of a matrix B
+B = np.array([[1, 2],  # First basis vector b1
+              [3, 4]])  # Second basis vector b2
+
+# Define a vector x in standard Cartesian coordinates (relative to e1, e2)
+x_standard = np.array([2, 2])  # x = 2*e1 + 2*e2
+
+# To express x in terms of basis B, we solve B * alpha = x for alpha
+# alpha represents the coordinates of x in the new basis B
+alpha = np.linalg.solve(B, x_standard)
+
+print("New coordinates of x in basis B:", alpha)
+
+# Convert back: reconstruct x from alpha using the basis B
+x_reconstructed = B @ alpha
+print("Reconstructed x (should match original x):", x_reconstructed)
+
+# Transformation Matrix: A linear mapping Φ: V → W can be represented by a matrix A
+# where the columns are the images of the basis vectors in W (Φ(b1), Φ(b2), ...).
+# To transform a vector x in V to y in W, we compute y = A * x.
+
+# Define the transformation matrix AΦ (maps from V to W)
+A_Phi = np.array([[2, 1],  # First column: Φ(b1) in C basis
+                  [0, 3]])  # Second column: Φ(b2) in C basis
+
+# Define a vector x in V with respect to basis B
+x_B = np.array([4, 5])  # Coordinates of x in basis B
+
+# Compute transformed vector y in W with respect to basis C
+y_C = A_Phi @ x_B  # Matrix-vector multiplication: y = A_Phi * x
+print("Transformed vector y in basis C:", y_C)
+
+# Verification: If given y in W, we can retrieve x in V (if A_Phi is invertible)
+if np.linalg.det(A_Phi) != 0:  # Ensure the matrix is invertible
+    A_Phi_inv = np.linalg.inv(A_Phi)  # Compute inverse transformation
+    x_recovered = A_Phi_inv @ y_C
+    print("Recovered x in basis B:", x_recovered)
+
 
 
 
