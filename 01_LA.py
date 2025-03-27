@@ -1263,60 +1263,236 @@ print(A_phi_new)
 
 # day 1 done here , will continue from tommorrow hopefully 
 
+# image and kernel of a linear transformation
+
+import numpy as np
+
+# define a linear transformation as a matrix
+A = np.array([[1, 2, 3],  
+              [4, 5, 6]])  # A maps R^3 to R^2
+
+# kernel (null space) is the set of vectors v such that A @ v = 0
+# solving Ax = 0 gives us the basis for the null space
+from scipy.linalg import null_space
+kernel_basis = null_space(A)  # basis of kernel
+
+# image (column space) is the set of all possible Av
+# the span of A's columns gives us the basis for the image
+image_basis = np.linalg.svd(A)[0]  # basis of column space
+
+print("Kernel basis (null space):")
+print(kernel_basis)
+print("\nImage basis (column space):")
+print(image_basis)
+
+# explanation:
+# 1. kernel (null space) is all vectors that get mapped to 0 by A.
+#    mathematically: ker(Φ) = {v ∈ R^3 | A @ v = 0}.
+#    this is found by solving Ax = 0.
+# 2. image (column space) is the set of all vectors A can produce.
+#    mathematically: Im(Φ) = span of A's columns.
+#    we find this using singular value decomposition (SVD).
 
 
+# The "span" of a set of vectors (or columns/rows of a matrix) refers to the set of all possible linear combinations of those vectors
+
+# matrix mapping animation at animations\01_LA\matrix_mapping.py
+# kernel image demo at animations\01_LA\kernel_image_demo.py
+
+# Define matrix A (maps R^3 to R^2)
+A = np.array([[2, -1, 3],  
+              [1,  4, -2]])  
+
+# ---- Finding the Kernel (Null Space) ----
+# The kernel consists of all x in R^3 such that Ax = 0
+ker_A = null_space(A)  # scipy finds a basis for the null space , the reason why we find basis is because the null space can have multiple vectors and we need to find a set of vectors that can span the null space
+
+# ---- Finding the Column Space (Image) ----
+# The image is the set of all possible Ax
+col_A = A.T @ np.linalg.inv(A @ A.T) @ A  # Projection matrix for column space
+
+# Print results
+print("Basis for the Kernel (Null Space):")
+print(ker_A)
+print("\nBasis for the Column Space (Image):")
+print(col_A)
+
+#  the number of columns in the matrix tells you the dimension of the domain (where vectors come from), and the number of rows tells you the dimension of the codomain (where they land).
+
+# in summary what we did is we found the basis for the null space and the image of the matrix A , the null space is the set of all vectors that get mapped to 0 by A and the image is the set of all vectors that A can produce
+
+"""
+%%%%%%%%######%%%%%@
+##%%%#**+==+==*%%%%%
+##%@##**++=++++#%%%%
+##%%####++++#++*%%%%
+++*##*++++++===+#%%%
++==+*##***+++++#%%%%
+*****####**+++*+*%%%
+****#####******===+#
+++***#########++++++
+++****#######***++++
+++****########******
+"""
+
+# RANK NULLITY
+
+# Rank-Nullity Theorem states that for a linear mapping Φ: V -> W,
+# dim(ker(Φ)) + dim(Im(Φ)) = dim(V) ( Im means image and ker means kernel )
+# This means the number of independent solutions (nullity) plus the number of mapped dimensions (rank)
+# always equals the dimension of the original space.
+# the image of 𝑉 is the entire space  V, while the image of Φ (i.e., Im(Φ)) is the subset of W that Φ actually maps to.
 
 
+# Define a random 4x3 matrix A (mapping from R^3 to R^4)
+A = np.array([[1, 2, 1],
+              [0, 1, -1],
+              [2, 3, 0],
+              [1, 1, 1]])
+
+# Compute the rank (dimension of the image)
+rank_A = np.linalg.matrix_rank(A)  # Rank is the number of independent columns
+
+# Compute the nullity (dimension of the kernel)
+# The nullity is given by dim(V) - rank(A), where dim(V) is the number of columns
+nullity_A = A.shape[1] - rank_A  # dim(V) = number of columns
+
+# Verify the Rank-Nullity Theorem
+print(f"Rank of A (dim(Im(Φ))): {rank_A}")
+print(f"Nullity of A (dim(ker(Φ))): {nullity_A}")
+print(f"Sum of Rank and Nullity: {rank_A + nullity_A}")
+print(f"Dimension of domain V (number of columns of A): {A.shape[1]}")
+
+# The sum of rank and nullity must be equal to the number of columns of A (dim(V))
+assert rank_A + nullity_A == A.shape[1], "Rank-Nullity theorem violated!"
+
+# visualization of images of V vs phi at animations\01_LA\image_vs_phi.py
+
+"""
+%%%%%%%%######%%%%%@
+##%%%#**+==+==*%%%%%
+##%@##**++=++++#%%%%
+##%%####++++#++*%%%%
+++*##*++++++===+#%%%
++==+*##***+++++#%%%%
+*****####**+++*+*%%%
+****#####******===+#
+++***#########++++++
+++****#######***++++
+++****########******
+"""
+
+# --------------------------  #
+# --- AFFINE SPACES -------- #
+# ----------------------------#
+
+import numpy as np
+
+# Affine subspaces are shifted versions of vector subspaces
+# They follow the form: L = x0 + U, where x0 is a fixed point and U is a subspace
+
+# Define a direction subspace U (a basis for the subspace)
+U = np.array([
+    [1, 0],  # Basis vector 1
+    [0, 1]   # Basis vector 2
+])
+
+# Define a support point x0 (the offset from the origin)
+x0 = np.array([2, 3])  # This shifts the subspace away from the origin
+
+# Define some parameters (weights for the basis vectors)
+lambda_values = np.array([
+    [1, 2],
+    [3, -1],
+    [0, 0]
+])
+
+# Compute points in the affine subspace using x = x0 + lambda1 * b1 + lambda2 * b2
+L = x0 + lambda_values @ U  # Matrix multiplication to get new points
+
+print("Affine subspace points:")
+print(L)
+
+# Explanation:
+# 1. We define a vector subspace U (spanned by two independent vectors in R^2).
+# 2. We select a point x0 that shifts the subspace away from the origin.
+# 3. Using different lambda values, we compute points in the affine space.
+# 4. The resulting points show how the subspace is translated rather than constrained to the origin.
+
+# Affine spaces are a generalization of vector spaces that allow for translations (shifts) in addition to linear transformations.
+# in simple terms : affine subspaces allow us to move freely in space not just around origin
 
 
+# Affine subspaces in R^n are defined by a support point x0 and a set of direction vectors
+# The dimension of the affine subspace is the number of independent direction vectors
+
+# Example 1: A line in R^2 (1D affine subspace)
+x0 = np.array([1, 2])  # Support point (starting point of the line)
+b1 = np.array([3, 1])  # Direction vector
+# The line is given by: y = x0 + λ * b1, where λ is any real number
+
+# Example 2: A plane in R^3 (2D affine subspace)
+x0_plane = np.array([1, 1, 1])  # Support point
+b1_plane = np.array([1, 0, 2])  # First direction vector
+b2_plane = np.array([0, 1, -1]) # Second direction vector
+# The plane is given by: y = x0 + λ1 * b1 + λ2 * b2, where λ1, λ2 are any real numbers
+
+# Example 3: A hyperplane in R^n (n-1 dimensional affine subspace in R^n)
+n_dim = 4  # Space dimension (R^4)
+k_dim = 3  # Subspace dimension (Hyperplane in R^4 is 3D)
+x0_hyperplane = np.array([1, 2, 3, 4])  # Support point in R^4
+b_hyperplane = np.random.rand(k_dim, n_dim)  # (n-1) Independent direction vectors
+# The hyperplane is given by: y = x0 + Σ(λ_i * b_i) for i=1 to (n-1)
+
+# General formulation: Any affine subspace in R^n is defined as:
+# L = x0 + span{b1, ..., bk} where {b1, ..., bk} are linearly independent
+# If k = n-1, it's a hyperplane; if k = 1, it's a line; if k = 2, it's a plane, etc.
+
+# Remark on solving linear systems:
+# The solution set of Ax = b (inhomogeneous linear system) is an affine subspace.
+# The solution set of Ax = 0 (homogeneous system) is a vector subspace (special case of affine subspaces where x0 = 0).
+
+# ---- affine mappings ----
+# animation at animations\01_LA\affine_mappings.py
+
+import numpy as np
+
+# Affine Mapping Definition:
+# An affine mapping φ : V → W is defined as:
+#     φ(x) = A * x + b
+# where:
+#     - A is a linear transformation matrix (n×n) 
+#     - x is the input vector (n×1)
+#     - b is the translation vector (n×1)
+#     - The mapping preserves structure but allows translation, unlike pure linear mappings.
+
+# Example: 2D Affine Mapping (Rotation + Translation)
+
+# Step 1: Define a linear transformation (rotation matrix)
+theta = np.pi / 4  # Rotate by 45 degrees
+A = np.array([[np.cos(theta), -np.sin(theta)],  # Rotation matrix
+              [np.sin(theta),  np.cos(theta)]])
+
+# Step 2: Define a translation vector
+b = np.array([3, 2])  # Moves the shape by (3,2)
+
+# Step 3: Define some points in 2D space (a square as an example)
+# Each row is a point in R²
+points = np.array([[1, 1], [-1, 1], [-1, -1], [1, -1]])  # Square corners
+
+# Step 4: Apply the linear transformation (rotation)
+linear_transformed = np.dot(points, A.T)  # Matrix multiplication applies rotation
+
+# Step 5: Apply the affine transformation (rotation + translation)
+affine_transformed = linear_transformed + b  # Adding translation component
+
+# Printing results
+print("Original Points:\n", points)
+print("After Linear Transformation (Rotation):\n", linear_transformed)
+print("After Affine Transformation (Rotation + Translation):\n", affine_transformed)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Affine mapping = linear transformation + shift, meaning it rotates/scales and then moves the shape.
 
 
 """
